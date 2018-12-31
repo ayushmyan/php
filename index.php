@@ -1,67 +1,171 @@
-
 <?php
-/*
- * The goal is to use a combination of multiple loops, functions, and nested arrays (multidimensional arrays)
- * to output a form to let a user pick date information.
- *
- * In addition to doing this as it's own assignment
- * You'll want to modify this in order to use it in the next assignment.
- */
+//extract
+   extract($_REQUEST);
 
-function selectArray($name,$theArray) {
-	// Based slightly off of https://github.com/andrew-chen/csis311/blob/master/examples/selectArray.php
+//********************************
+// Functions 
 
-	echo "<select name=\"$name\">";
-	/* loop through $theArray and have the following loop body work on every $key => $value) */ 
-	foreach ($theArray as $key => $value){
-	
-		echo "<option value=\"$key\">$value</option>";
-	};
-	echo "</select>";
-	
-	
-	
-};
+function displayform()
+{
 
-function selectNum($name,$first,$last) {
-// Based slightly off of https://github.com/andrew-chen/csis311/blob/master/examples/selectNum.php
-	echo "<select name=\"$name\">";
-/* have $i go from $first to $last */
-	for ($i=$first; $i<=$last; $i++){
+  echo "<form>"; 
+echo <<< HERE
+    <h3> Select Entrance Date: </h3>
+HERE;
+   $today = time();
+   $thisYr = date("Y", $today);
+   $thisMn = date("n", $today);
+   $thisda = date("j", $today);
+   $thisHr = date("G",$today);
+   $thisMi = date("i",$today);
+   
+  echo "Year: ";  selectNum("year1", 2013, 2023, $thisYr);
+
+  echo "Month: "; selectNum("month1", 1, 12, $thisMn);
+
+  echo "Day: "; selectNum("day1", 1 , 31, $thisda);
+
+  echo "Hour: ";  selectNum("hour1",0,23,$thisHr);
+
+  echo "Minute: ";  selectNum("minute1",0,59,$thisMi);
+
+echo <<< HERE
+    <h3> Select Exit Date: </h3>
+HERE;
+
+  echo "Year: ";  selectNum("year2", 2013, 2023,$thisYr);
+
+  echo "Month: ";selectNum("month2", 1, 12,$thisMn);
+
+  echo "Day: ";selectNum("day2", 1 , 31,$thisda);
+
+  echo "Hour: " ; selectNum("hour2",0,23,$thisHr);
+
+  echo "Minute: ";  selectNum("minute2",0,59,$thisMi);
+ 
+echo <<< HERE
+	<br>
+	<br>
+	<br>
+    <h3> Select Service: </h3>
+HERE;
+ echo <<< HERE
+
+ 
+  <input type="radio" name="type" value="short" checked >Short-term parking <br/>
+  <input type="radio" name="type" value="long"> Long-term parking <br/>
+  <input type="radio" name="type" value="economy"> Economy parking <br/><br/>
+  <input type="submit" name=button value="Calculate"><br/>
+
+HERE;
+  echo "</form>";
+}
+
+function selectNum($name,$first,$last,$def)
+{
+   echo "<select name=\"$name\">";
+   for ($i=$first; $i<=$last; $i++)
+   {
+      if ($i == $def)
+          echo "<option selected>$i</option>";
+      else
+          echo "<option>$i</option>";
+  }
+   echo "</select>";
+   
+}
+
+function back2form()
+{
+   echo <<< HERE
+   <br><br>
+   <form>
+      <input type="submit" name="$button" value="Go Back">
+   </form>
+HERE;
+}
+
+function back2home()
+{
 	
-		echo "<option>$i</option>";
-	};
-	echo "</select>";
-};
+echo <<< HERE
+<form action="../index.html">
+  <input type ="submit" value = "Back to Main Page">
+</form>
+HERE;
+}
 
-function form($layout) {
-	echo "<form>";
-/* loop through $layout and have the following loop body work on every $key => $value) */ 
-	foreach ($layout as $key =>$value){
-		
-		if (is_array($value)) {
-		if ((count($value) == 2)&&(is_numeric($value[0]))&&(is_numeric($value[1]))) {
-/* call selectNum with $key as the $name and with $value[0] as $first and with $value[1] as $last */
-				selectNum($key,$value[0],$value[1]);
-			} else {
-/* call selectArray with $key as the $name and with $value as $theArray */
-				selectArray($key,$value);
-			};
-		} else {
-/* call selectNum with $key as the $name and with 1 as $first and with $value as $last */
-			selectNum($key,1,$value);
-		};
-	};
-	echo "<input type=\"submit\"></form>";
-};
+//main function for display 
 
-if (count($_REQUEST)) {
-	print_r($_REQUEST);
-} else {
-	form(array("year"=>array(2010,2020),"month"=>array("January","February","March","April","May","June","July","August","September","October","November","December"),"day"=>31,"hour"=>24,"minute"=>60));
-};
+if ($button == NULL)
+{
+displayform();
+back2home();
+}
+else if ($button == "Calculate")
+{
+	
+if (checkdate($month1, $day1, $year1) && checkdate($month2, $day2, $year2)){
+$date1 = mktime($hour1, $minute1, 0, $month1, $day1, $year1);
+$date2 = mktime($hour2, $minute2, 0, $month2, $day2, $year2);
+$mins = ($date2 - $date1)/60;
+$tot = 0;
+
+if ($type=="short")
+{
+$days = (int)($mins/1440);
+
+$tot += 18*$days;
+
+$rem = $mins%1440;
+
+$ext = (int)($rem/30);
+
+$tot += $ext;
+
+echo "Total Airport Short-term Parking Fee : $" . $tot;
+back2form(); 
+}
+
+
+else if ($type=="long")
+{
+
+$days = (int)($mins/1440);
+$weeks = (int)($days/7);
+$remDays = $days - ($weeks*7);
+$tot += 48*$weeks;
+$tot += 8*$remDays;
+$rem = $mins%1440;
+$ext = (int)($rem/30);
+$tot += $ext;
+
+echo "Total Airport Long-term Parking Fee : $" . $tot;
+back2form();
+}
+
+else if ($type=="economy")
+{
+
+$days = (int)($mins/1440);
+$weeks = (int)($days/7);
+$remDays = $days - ($weeks*7);
+$tot += 36*$weeks;
+$tot += 6*$remDays;
+$rem = $mins%1440;
+$ext = (int)($rem/30);
+$tot += $ext;
+
+echo "Total Airport Economy Parking Fee : $" . $tot;
+back2form();
+
+}}
+else
+{
+  echo "Incorrect dates. Please go back and input a correct date!";
+  back2form();}
+}
+
+echo "<HR>";
+highlight_file("index.php");
 ?>
-
-<p><a href="../.">Back to main page.</a></p>
-</body>
-</html>
