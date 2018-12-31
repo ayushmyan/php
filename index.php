@@ -1,46 +1,109 @@
-<html>
-<body>
 <form>
 <?php
-
-
-// assign $a a random number between 2 and 10
-$a = rand(2,10);
-// assign $b a random number between 2 and 10
-$b = rand(2,10);
-// extract $_REQUEST
 extract($_REQUEST);
-// test to see if $product is equal to $a times $b
-if ($product == $a * $b)
-{ 
-	echo "Good job!<br>";
-// output a hidden input field with name a and with a new random value
-echo '<input type = "hidden" name ="a" value='.rand(2, 10).'/>' ;
-// output a hidden input field with name b and with a new random value
-echo '<input type = "hidden" name = "b" value ='.rand(2, 10).'/>';
+    
+function namepage()
+{
+	echo <<< HERE
+  <h1> Division Quiz </h1>
+  <h2> Enter your name: <input type="text" name= "name" autocomplete="off"> </h2>
+  	
+  <br>
+  <input type="submit" name="button" value="Start">  <br> <br>
+  <a href="../index.html"> Main Page </a>
+HERE;
 
-?>
-<input type="submit">
-<?php
-} else {
-// if this was a new page load, $product will be empty, so we don't output anything
-// otherwise, if product has a value, and we're here, then it is an incorrect value, so we output a message that the user should try again
-	echo "Please try again!<br>";
-// output a hidden input field with name a and with the value of the $a variable
-	echo '<input type ="hidden" name ="a" value='.$a.' />'; 
-// output a hidden input field with name b and with the value of the $b variable
-	echo '<input type ="hidden" name ="b" value ='.$b.' />'; 
-?>
+}
 
-	Product of <?php echo $a; ?> and <?php echo $b; ?>:
-<input type="text" name="product">
-<br>
-<input type="submit">
-<?php
-};
+function querypage($name,$rand,$rand1,$right,$num)
+{
+
+ echo <<< HERE
+ <h1> Participant: $name </h1>
+ <h2> $rand / $rand1 = <input type="text" name="answer" autocomplete="off"> </h2>
+ <br>
+ <input type="submit" name="button" value="Submit">
+ <input type="submit" name="button" value="Restart">
+
+ <br><br>
+ Number of correct answers: $right <br>
+ Number of problems attempted: $num <br>
+
+
+HERE;
+echo "<input type='hidden' name='name' value='$name'>";
+echo "<input type='hidden' name='rand' value='$rand'>";
+echo "<input type='hidden' name='rand1' value='$rand1'>";
+echo "<input type='hidden' name='right' value='$right'>";
+echo "<input type='hidden' name='num' value='$num'>";
+}
+
+function check($name,$answer,$rand,$rand1,&$right,&$num)
+{
+	if ($rand / $rand1 == $answer){
+		$right++;
+		$num++;
+		
+		echo <<< HERE
+		<h3> CORRECT! </h3>
+		$rand / $rand1 = $answer <br><br>
+		<input type="submit" name="button" value="Next Problem"> <br><br>
+      Number of correct answers: $right <br>
+      Number of problems attempted: $num <br>
+HERE;
+
+	}
+	
+	else{
+		$num++;
+		echo <<< HERE
+      <h1> INCORRECT!</h1>
+      <input type="submit" name="button" value="Try Again"><br><br>
+	  <input type="submit" name="button" value="Restart"><br><br>
+      Number of correct answers: $right <br>
+      Number of problems attempted: $num <br>
+      
+HERE;
+	}
+	
+	echo "<input type='hidden' name='name' value='$name'>";
+	echo "<input type='hidden' name='right' value='$right'>";
+	echo "<input type='hidden' name='num' value='$num'>";
+	echo "<input type='hidden' name='rand' value='$rand'>";
+	echo "<input type='hidden' name='rand1' value='$rand1'>";
+}
+
+
+   
+if ($button==NULL or $button =="Restart") {
+namepage();}
+
+else if ($button == "Start"){
+		$rand = rand(1,9);
+		$rand1 = rand(1,9);
+		$right =0;
+		$num =0;
+    querypage($name,$rand,$rand1,$right,$num);}
+
+else if ($button == "Next Problem"){
+	$rand = rand(1,9);
+	$rand1 = rand(1,9);
+	querypage($name,$rand,$rand1,$right,$num);}
+	
+else if ($button == "Try Again"){
+	querypage ($name,$rand,$rand1,$right,$num);}
+	
+else if ($button == "Submit"){
+	check($name,$answer,$rand,$rand1,$right,$num);   
+}
+
 ?>
 </form>
-<a href = "../index.html">Go Back!</a>
-</body>
-</html>
+
+ 
+
+
+<?php
+echo "<HR>";
+highlight_file("index.php"); ?>
 
